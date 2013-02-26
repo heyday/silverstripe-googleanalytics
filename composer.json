@@ -1,0 +1,24 @@
+{
+    "name": "heyday/silverstripe-googleanalytics",
+    "type": "silverstripe-module",
+    "authors": [
+        {
+            "name": "Stevie Mayhew",
+            "email": "stevie@heyday.co.nz"
+        }
+    ],
+    "require": {
+        "composer/installers": "~1.0",
+		"camspiers/autoloader-composer-silverstripe": "1.0.*",
+        "united-prototype/php-ga": "*"
+    },
+    "minimum-stability": "dev",
+    "extra": {
+        "installer-paths": {
+            "sapphire": [
+                "silverstripe/framework"
+            ]
+        }
+    },
+    "time": "2013-02-27 12:45:32"
+}
