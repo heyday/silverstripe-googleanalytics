@@ -77,7 +77,7 @@ class SSGoogleAnalytics
 
         if(!(Session::get('SSGA_VisitorID'))) {
      
-            $uniqueID = GoogleAnalytics\Internals\Util::generateHash(rand(1000000,2000000);
+            $uniqueID = GoogleAnalytics\Internals\Util::generateHash(rand(1000000,2000000));
             Session::set('SSGA_VisitorID', $uniqueID);
             $sessionID = $uniqueID;
 
