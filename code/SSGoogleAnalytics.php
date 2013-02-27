@@ -73,10 +73,14 @@ class SSGoogleAnalytics
     public function setGAVisitor()
     {
         
+        $sessionID = false;
+
         if(!(Session::get('SSGA_VistorID'))) {
      
-            Session::set('SSGA_VistorID', GoogleAnalytics\Internals\Util::generateHash(rand(1000000,2000000)));
-            
+            $uniqueID = GoogleAnalytics\Internals\Util::generateHash(rand(1000000,2000000);
+            Session::set('SSGA_VistorID', $uniqueID);
+            $sessionID = $uniqueID;
+
         }
         
         if (Cookie::get('SSGA_Visitor') && !Session::get('SSGA_Visitor')) {
@@ -94,7 +98,7 @@ class SSGoogleAnalytics
             
         }
 
-        $visitor->setUniqueId($_SESSION['SSGA_VistorID']);
+        $visitor->setUniqueId($sessionID ? $sessionID : Session::get('SSGA_VisitorID'));
         $visitor->setIpAddress($_SERVER['REMOTE_ADDR']);
         $visitor->setUserAgent($_SERVER['HTTP_USER_AGENT']);
         $visitor->addSession($this->getGASession());
