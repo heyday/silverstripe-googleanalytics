@@ -2,25 +2,42 @@
 
 use UnitedPrototype\GoogleAnalytics;
 
-class Analytics
+class SSGoogleAnalytics
 {
- 
+
+    private static $trackingCode = false;
+    private static $domain = false;
+
     private $gaTracker = false;
     private $gaSession = false;
     private $gaVisitor = false;
-    
-    public function __construct($trackingCode = false, $domain = false) {
+
+    public function __construct() {
         
-        if (!$trackingCode || !$domain) {
+        if (!self::$trackingCode || !self::$domain) {
             
             user_error('Please set a tracking code and domain for this analytics instance.', E_USER_ERROR);
             
         }
         
-        $this->setGATracker($trackingCode, $domain);
+        $this->setGATracker(self::$trackingCode, self::$domain);
         $this->setGASession();
         $this->setGAVisitor();
         
+    }
+
+    public static function setTrackingCode($trackingCode) 
+    {
+
+        self::$trackingCode = $trackingCode;
+
+    }
+
+    public static function setDomain($domain) 
+    {
+
+        self::$domain = $domain;
+
     }
     
     public function getGATracker()
