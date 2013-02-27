@@ -102,12 +102,12 @@ class Analytics
     
     public function setGASession()
     {
-        if( !isset($_SESSION['SSGA_SessionID']) ) {      
-            $_SESSION['SSGA_SessionID'] = GoogleAnalytics\Internals\Util::generateHash(rand(1000000,2000000));
+        if (!Session::get('SSGA_SessionID')) {      
+            !Session::set('SSGA_SessionID', GoogleAnalytics\Internals\Util::generateHash(rand(1000000,2000000)));
         }
 
         $session = new GoogleAnalytics\Session();
-        $session->setSessionId($_SESSION['SSGA_SessionID']);
+        $session->setSessionId(Session::get('SSGA_SessionID'));
             
         $this->gaSession = $session;
     }
