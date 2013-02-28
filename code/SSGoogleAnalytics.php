@@ -90,7 +90,7 @@ class SSGoogleAnalytics
         } else if (Session::get('SSGA_Visitor')) {
 
             $visitor = unserialize(Session::get('SSGA_Visitor'));
-            Cookie::set('SSGA_Visitor', Session::get('SSGA_Visitor'), 90, '/', '.stevie.co.nz');
+            Cookie::set('SSGA_Visitor', Session::get('SSGA_Visitor'));
             
         } else {
             
