@@ -10,7 +10,7 @@
     "require": {
         "composer/installers": "~1.0",
 		"camspiers/autoloader-composer-silverstripe": "1.0.*",
-        "united-prototype/php-ga": "*"
+        "unitedprototype/php-ga": "*"
     },
     "minimum-stability": "dev",
     "extra": {
@@ -19,6 +19,5 @@
                 "silverstripe/framework"
             ]
         }
-    },
-    "time": "2013-02-27 12:45:32"
+    }
 }
