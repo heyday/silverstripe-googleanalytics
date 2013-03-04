@@ -76,8 +76,17 @@ class SSGoogleAnalytics
         $sessionID = false;
 
         if(!(Session::get('SSGA_VisitorID'))) {
-     
-            $uniqueID = GoogleAnalytics\Internals\Util::generateHash(rand(1000000,2000000));
+            
+            if (Cookie::get('__utmb')) {
+                $uniqueID = Cookie::get('__utmb');
+                
+                
+            } else {
+                
+                $uniqueID = GoogleAnalytics\Internals\Util::generateHash(rand(1000000,2000000));
+                
+            }
+            
             Session::set('SSGA_VisitorID', $uniqueID);
             $sessionID = $uniqueID;
 
@@ -127,8 +136,8 @@ class SSGoogleAnalytics
             !Session::set('SSGA_SessionID', GoogleAnalytics\Internals\Util::generateHash(rand(1000000,2000000)));
         }
 
-        $session = new GoogleAnalytics\Session();
-        $session->setSessionId(Session::get('SSGA_SessionID'));
+        $session = new GoogleAnalytics\Session();        
+        $session->fromUtmb(Cookie::get('__utmb'));
             
         $this->gaSession = $session;
     }
@@ -142,6 +151,12 @@ class SSGoogleAnalytics
     public function trackEvent($event) {
         
         $this->getGATracker()->trackEvent($event, $this->getGASession(), $this->getGAVisitor());
+        
+    }
+    
+    public function trackTransaction($transaction) {
+        
+        $this->getGATracker()->trackTransaction($transaction, $this->getGASession(), $this->getGAVisitor());
         
     }
     
