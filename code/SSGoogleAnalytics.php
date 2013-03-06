@@ -55,6 +55,7 @@ class SSGoogleAnalytics
     {
         $config = new GoogleAnalytics\Config();
         $config->setAnonymizeIpAddresses(true);
+        $config->setErrorSeverity(0);
         $this->gaTracker = new GoogleAnalytics\Tracker($trackingCode, $domain, $config);
         
     }
@@ -136,8 +137,12 @@ class SSGoogleAnalytics
             !Session::set('SSGA_SessionID', GoogleAnalytics\Internals\Util::generateHash(rand(1000000,2000000)));
         }
 
-        $session = new GoogleAnalytics\Session();        
-        $session->fromUtmb(Cookie::get('__utmb'));
+        $session = new GoogleAnalytics\Session();      
+        if (Cookie::get('__utmb')) {
+            
+            $session->fromUtmb(Cookie::get('__utmb'));
+            
+        } 
             
         $this->gaSession = $session;
     }
