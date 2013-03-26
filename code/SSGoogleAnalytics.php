@@ -113,7 +113,7 @@ class SSGoogleAnalytics
                             'ErrorSeverity' => GoogleAnalytics\Config::ERROR_SEVERITY_SILENCE,
                             'FireAndForget' => true,
                             'LoggingCallback' => self::$loggingPath ? function ($request, $response) {
-                                file_put_contents(self::$loggingPath, file_get_contents(self::$loggingPath) . $request . PHP_EOL)
+                                file_put_contents(self::$loggingPath, file_get_contents(self::$loggingPath) . $request . PHP_EOL);
                             } : null
                         )
                     )
