@@ -2,167 +2,201 @@
 
 use UnitedPrototype\GoogleAnalytics;
 
+use Cookie as SSCookie;
+use Session as SSSession;
+
+use RuntimeException;
+
 class SSGoogleAnalytics
 {
-
-    private static $trackingCode = false;
-    private static $domain = false;
-
-    private $gaTracker = false;
-    private $gaSession = false;
-    private $gaVisitor = false;
-
-    public function __construct() {
-        
-        if (!self::$trackingCode || !self::$domain) {
-            
-            user_error('Please set a tracking code and domain for this analytics instance.', E_USER_ERROR);
-            
-        }
-        
-        $this->setGATracker(self::$trackingCode, self::$domain);
-        $this->setGASession();
-        $this->setGAVisitor();
-        
+    /**
+     * The tracking code to use
+     * @var string
+     */
+    private static $trackingCode;
+    /**
+     * The domain to use
+     * @var string
+     */
+    private static $domain;
+    /**
+     * An instance of GoogleAnalytics\Tracker
+     * @var GoogleAnalytics\Tracker
+     */
+    private $gaTracker;
+    /**
+     * An instance of GoogleAnalytics\Session
+     * @var GoogleAnalytics\Session
+     */
+    private $gaSession;
+    /**
+     * An instance of GoogleAnalytics\Visitor
+     * @var GoogleAnalytics\Visitor
+     */
+    private $gaVisitor;
+    /**
+     * Creates the object using the statically configured tracking code and domain
+     */
+    public function __construct()
+    {        
+        if (!self::$trackingCode || !self::$domain) {            
+            throw new RuntimeException('Please set a tracking code and domain for this analytics instance.');            
+        }        
     }
-
+    /**
+     * Set the tracking code to use
+     * @param strin $trackingCode The tracking code
+     */
     public static function setTrackingCode($trackingCode) 
     {
-
         self::$trackingCode = $trackingCode;
-
     }
-
+    /**
+     * Gets the tracking code in use
+     * @return string The tracking code
+     */
+    public static function getTrackingCode()
+    {
+        return self::$trackingCode;
+    }
+    /**
+     * Set the domain to use
+     * @param string $domain The domain to use
+     */
     public static function setDomain($domain) 
     {
-
         self::$domain = $domain;
-
     }
-    
+    /**
+     * Gets the domain in use
+     * @return string The domain
+     */
+    public static function getDomain()
+    {
+        return self::$domain;
+    }
+    /**
+     * Get a GA tracker instance setting one with defaults if one doesn't exist
+     * @return GoogleAnalytics\Tracker The GA tracker
+     */
     public function getGATracker()
-    {
-        
-        if (!$this->gaTracker) {
-            $this->setGATracker();
-        }
-        
+    {   
+        if (null == $this->gaTracker) {
+            $this->setGATracker(
+                new GoogleAnalytics\Tracker(
+                    self::$trackingCode,
+                    self::$domain,
+                    new GoogleAnalytics\Config(
+                        array(
+                            'AnonymizeIpAddresses' => true,
+                            'ErrorSeverity' => GoogleAnalytics\Config::ERROR_SEVERITY_SILENCE,
+                            'FireAndForget' => true
+                        )
+                    )
+                )
+            );
+        }        
         return $this->gaTracker;
-        
     }
-    
-    public function setGATracker($trackingCode, $domain) 
+    /**
+     * Set a GA tracker
+     * @param GoogleAnalytics\Tracker $tracker The tracker
+     */
+    public function setGATracker(GoogleAnalytics\Tracker $tracker) 
     {
-        $config = new GoogleAnalytics\Config();
-        $config->setAnonymizeIpAddresses(true);
-        $config->setErrorSeverity(0);
-        $this->gaTracker = new GoogleAnalytics\Tracker($trackingCode, $domain, $config);
-        
+        $this->gaTracker = $tracker;
     }
-    
+    /**
+     * Get a GA visitor, if one doesn't exist build one and set it from the utma cookie
+     * @return GoogleAnalytics\Visitor The visitor
+     */
     public function getGAVisitor()
     {
-        
-        if (!$this->gaVisitor) {
-            $this->setGAVisitor();
-        }
-        
-        return $this->gaVisitor;
-        
-    }
-    
-    public function setGAVisitor()
-    {
-        
-        $sessionID = false;
-
-        if(!(Session::get('SSGA_VisitorID'))) {
-            
-            if (Cookie::get('__utmb')) {
-                $uniqueID = Cookie::get('__utmb');
-                
-                
-            } else {
-                
-                $uniqueID = GoogleAnalytics\Internals\Util::generateHash(rand(1000000,2000000));
-                
+        if (null == $this->gaVisitor) {
+            $visitor = new GoogleAnalytics\Visitor();
+            if (SSCookie::get('__utma')) {
+                $visitor->fromUtma(SSCookie::get('__utma'));
             }
-            
-            Session::set('SSGA_VisitorID', $uniqueID);
-            $sessionID = $uniqueID;
-
+            $visitor->fromServerVar($_SERVER);
+            $visitor->addSession($this->getGASession());
+            $this->setGAVisitor($visitor);
         }
         
-        if (Cookie::get('SSGA_Visitor') && !Session::get('SSGA_Visitor')) {
-
-            $visitor = unserialize(Cookie::get('SSGA_Visitor'));
-            
-        } else if (Session::get('SSGA_Visitor')) {
-
-            $visitor = unserialize(Session::get('SSGA_Visitor'));
-            Cookie::set('SSGA_Visitor', Session::get('SSGA_Visitor'));
-            
-        } else {
-            
-            $visitor = new GoogleAnalytics\Visitor();    
-            
-        }
-
-        $visitor->setUniqueId($sessionID ? $sessionID : Session::get('SSGA_VisitorID'));
-        $visitor->setIpAddress($_SERVER['REMOTE_ADDR']);
-        $visitor->setUserAgent($_SERVER['HTTP_USER_AGENT']);
-        $visitor->addSession($this->getGASession());
-        
-        Session::set('SSGA_Visitor', serialize($visitor));
-        $this->gaVisitor = $visitor;
-        
+        return $this->gaVisitor;        
     }
-    
+    /**
+     * Set a GA Visitor
+     * @param GoogleAnalytics\Visitor $visitor [description]
+     */
+    public function setGAVisitor(GoogleAnalytics\Visitor $visitor)
+    {
+        $this->gaVisitor = $visitor;        
+    }
+    /**
+     * Get a GA Session, if one doesn't exist in on the object or in the session, then build a new one from the utmb cookie
+     * @return GoogleAnalytics\Session The GA Session
+     */
     public function getGASession()
-    {
-        
-        if (!$this->gaSession) {
-            
-            $this->setGASession();
-            
+    {        
+        if (null == $this->gaSession) {
+            $sessionRaw = SSSession::get('SSGA_Session');
+            $session = $sessionRaw ? unserialize(SSSession::get('SSGA_Session')) : false;
+            if (!$session instanceof GoogleAnalytics\Session) {
+                $session = new GoogleAnalytics\Session();
+                if (Cookie::get('__utmb')) {
+                    $session->fromUtmb(Cookie::get('__utmb'));
+                }
+            }
+            $this->setGASession($session);
         }
-        
-        return $this->gaSession;
-        
+        return $this->gaSession;        
     }
-    
-    public function setGASession()
+    /**
+     * Set a GA Session to the object and the silverstripe php session
+     * @param GoogleAnalytics\Session $session The GA session to set
+     */
+    public function setGASession(GoogleAnalytics\Session $session)
     {
-        if (!Session::get('SSGA_SessionID')) {      
-            !Session::set('SSGA_SessionID', GoogleAnalytics\Internals\Util::generateHash(rand(1000000,2000000)));
-        }
-
-        $session = new GoogleAnalytics\Session();      
-        if (Cookie::get('__utmb')) {
-            
-            $session->fromUtmb(Cookie::get('__utmb'));
-            
-        } 
-            
         $this->gaSession = $session;
+        SSSession::set('SSGA_Session', serialize($session));
     }
-    
-    public function trackPageview($page) {
-        
-        $this->getGATracker()->trackPageview($page, $this->getGASession(), $this->getGAVisitor());
-        
+    /**
+     * Track a page view using the Visitor and Session from this object
+     * @param  GoogleAnalytics\Page $page The page view to track
+     * @return null
+     */
+    public function trackPageview(GoogleAnalytics\Page $page)
+    {   
+        $this->getGATracker()->trackPageview(
+            $page,
+            $this->getGASession(),
+            $this->getGAVisitor()
+        );
     }
-    
-    public function trackEvent($event) {
-        
-        $this->getGATracker()->trackEvent($event, $this->getGASession(), $this->getGAVisitor());
-        
+    /**
+     * Track an event using the Visitor and Session from this object
+     * @param  GoogleAnalytics\Event $page The event to track
+     * @return null
+     */
+    public function trackEvent(GoogleAnalytics\Event $event)
+    {
+        $this->getGATracker()->trackEvent(
+            $event,
+            $this->getGASession(),
+            $this->getGAVisitor()
+        );
     }
-    
-    public function trackTransaction($transaction) {
-        
-        $this->getGATracker()->trackTransaction($transaction, $this->getGASession(), $this->getGAVisitor());
-        
-    }
-    
+    /**
+     * Track a transaction using the Visitor and Session from this object
+     * @param  GoogleAnalytics\Transaction $page The transation to track
+     * @return null
+     */
+    public function trackTransaction(GoogleAnalytics\Transaction $transaction)
+    {   
+        $this->getGATracker()->trackTransaction(
+            $transaction,
+            $this->getGASession(),
+            $this->getGAVisitor()
+        );
+    }    
 }
