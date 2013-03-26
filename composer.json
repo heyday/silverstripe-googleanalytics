@@ -1,10 +1,16 @@
 {
     "name": "heyday/silverstripe-googleanalytics",
     "type": "silverstripe-module",
+    "description": "A thin SilverStripe helper for the php-ga library",
+    "license": "MIT",
     "authors": [
         {
             "name": "Stevie Mayhew",
             "email": "stevie@heyday.co.nz"
+        },
+        {
+            "name": "Cam Spiers",
+            "email": "cameron@heyday.co.nz"
         }
     ],
     "require": {
@@ -15,7 +21,7 @@
     "minimum-stability": "dev",
     "extra": {
         "branch-alias": {
-            "dev-master": "1.0.x-dev"
+            "dev-master": "0.1.x-dev"
         }
     }
 }
