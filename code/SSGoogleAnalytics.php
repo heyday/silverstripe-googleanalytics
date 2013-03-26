@@ -20,10 +20,10 @@ class SSGoogleAnalytics
      */
     private static $domain;
     /**
-     * The logging path to use
+     * The logging callback to use
      * @var string
      */
-    private static $loggingPath;
+    private static $loggingCallback;
     /**
      * An instance of GoogleAnalytics\Tracker
      * @var GoogleAnalytics\Tracker
@@ -81,20 +81,20 @@ class SSGoogleAnalytics
         return self::$domain;
     }
     /**
-     * Sets logging path to use
-     * @param string $loggingPath Logging path
+     * Sets logging callback to use
+     * @param string $loggingCallback Logging callback
      */
-    public static function setLoggingPath($loggingPath) 
+    public static function setLoggingCallback($loggingCallback) 
     {
-        self::$loggingPath = $loggingPath;
+        self::$loggingCallback = $loggingCallback;
     }
     /**
-     * Gets the logging path 
-     * @return string The domain
+     * Gets the logging callback 
+     * @return string The logging callback
      */
-    public static function getLoggingPath()
+    public static function getLoggingCallback()
     {
-        return self::$loggingPath;
+        return self::$loggingCallback;
     }
     /**
      * Get a GA tracker instance setting one with defaults if one doesn't exist
@@ -112,9 +112,7 @@ class SSGoogleAnalytics
                             'AnonymizeIpAddresses' => true,
                             'ErrorSeverity' => GoogleAnalytics\Config::ERROR_SEVERITY_SILENCE,
                             'FireAndForget' => true,
-                            'LoggingCallback' => self::$loggingPath ? function ($request, $response) {
-                                file_put_contents(self::$loggingPath, file_get_contents(self::$loggingPath) . $request . PHP_EOL);
-                            } : null
+                            'LoggingCallback' => self::$loggingCallback
                         )
                     )
                 )
