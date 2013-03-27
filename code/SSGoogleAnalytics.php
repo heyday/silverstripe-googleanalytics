@@ -5,8 +5,6 @@ use UnitedPrototype\GoogleAnalytics;
 use Cookie as SSCookie;
 use Session as SSSession;
 
-use RuntimeException;
-
 class SSGoogleAnalytics
 {
     /**
