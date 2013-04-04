@@ -11,14 +11,14 @@ $ composer require heyday/silverstripe-googleanalytics:~0.1
 
 ## Config
 ```php
-SSGoogleAnalytics::setDomain('heyday.co.nz');
+SSGoogleAnalytics::setDomain('website.com');
 SSGoogleAnalytics::setTrackingCode('UA-11111111-1');
 SSGoogleAnalytics::setLoggingCallback(function ($request, $response) {
 	mail(
-	    'stevie@heyday.co.nz',
+	    'email@email.com',
 	    'Analytics log - dev',
 	    $request,
-	    "Content-type: text/html\nFrom: dev@heyday.net.nz"
+	    "Content-type: text/html\nFrom: email@email.com"
 	);
 });
 ```
@@ -28,7 +28,7 @@ SSGoogleAnalytics::setLoggingCallback(function ($request, $response) {
 use UnitedPrototype\GoogleAnalytics;
 
 $analytics = new SSGoogleAnalytics();
-$pageView = new GoogleAnalytics\Page('heyday.net.nz');
+$pageView = new GoogleAnalytics\Page('/home');
 $analytics->trackPageview($pageView);
 ```
 ## Track Event
