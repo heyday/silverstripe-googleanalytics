@@ -19,6 +19,14 @@
         "unitedprototype/php-ga": "dev-master"
     },
     "minimum-stability": "dev",
+    "autoload": {
+        "psr-0": {
+            "SSGoogleAnalytics": "code/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~3.7"
+    },
     "extra": {
         "branch-alias": {
             "dev-master": "0.1.x-dev"
