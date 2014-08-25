@@ -110,7 +110,7 @@ class SSGoogleAnalytics
                             'AnonymizeIpAddresses' => true,
                             'ErrorSeverity' => GoogleAnalytics\Config::ERROR_SEVERITY_SILENCE,
                             'FireAndForget' => true,
-                            'LoggingCallback' => self::$loggingCallback
+                            'LoggingCallback' => self::$loggingCallback ?: function () {}
                         )
                     )
                 )
